@@ -2,17 +2,49 @@ package org.myfood;
 
 public class Food {
 
+    // Fields: information stored in each Food object
     private String name;
     private Float weight;
     private String BBF;
     private Integer ID;
 
+    // CONSTRUCTOR: runs when you create a new Food object
+    public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
+        setName(name); // Validate the name before storing it
+        this.weight = weight;
+        this.BBF = bestBeforeDate;
+        this.ID = ID;
+    }
+
+    // Return the food name
     public String getName() {
         return name;
     }
 
+    // Validate and store the food name
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Food name cannot be empty."
+            );
+        }
+
+        String cleanedName = name.trim();
+
+        String[] allowedNames = {
+            "Burger", "Pizza", "Fries", "Sandwich", "Hotdog"
+        };
+
+        for (String allowedName : allowedNames) {
+            if (allowedName.equalsIgnoreCase(cleanedName)) {
+                this.name = allowedName;
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException(
+            "Invalid food name. Choose Burger, Pizza, Fries, Sandwich or Hotdog."
+        );
     }
 
     public Float getWeight() {
@@ -38,21 +70,4 @@ public class Food {
     public void setID(Integer ID) {
         this.ID = ID;
     }
-
-    /**
-     * Constructor for the Food class
-     *
-     * @param name           - The name of the food item
-     * @param weight         - The weight of the food item
-     * @param bestBeforeDate - The best before date of the food item
-     * @param ID             - The ID of the food item
-     */
-    public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
-        this.name = name;
-        this.weight = weight;
-        this.BBF = bestBeforeDate;
-        this.ID = ID;
-
-    }
-
 }
