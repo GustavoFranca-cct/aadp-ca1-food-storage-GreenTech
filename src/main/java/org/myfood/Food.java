@@ -2,26 +2,23 @@ package org.myfood;
 
 public class Food {
 
-    // Fields: information stored in each Food object
     private String name;
     private Float weight;
     private String BBF;
     private Integer ID;
 
-    // CONSTRUCTOR: runs when you create a new Food object
+    // CONSTRUCTOR: creates a Food object and validates its name and weight.
     public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
-        setName(name); // Validate the name before storing it
-        this.weight = weight;
+        setName(name);
+        setWeight(weight);
         this.BBF = bestBeforeDate;
         this.ID = ID;
     }
 
-    // Return the food name
     public String getName() {
         return name;
     }
 
-    // Validate and store the food name
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -52,6 +49,12 @@ public class Food {
     }
 
     public void setWeight(Float weight) {
+        if (weight == null || !Float.isFinite(weight) || weight <= 0) {
+            throw new IllegalArgumentException(
+                "Weight must be a positive, finite number in grams."
+            );
+        }
+
         this.weight = weight;
     }
 
