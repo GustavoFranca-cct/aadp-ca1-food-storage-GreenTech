@@ -1,5 +1,8 @@
 package org.myfood;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class Food {
 
     private String name;
@@ -7,11 +10,11 @@ public class Food {
     private String BBF;
     private Integer ID;
 
-    // CONSTRUCTOR: creates a Food object and validates its name and weight.
+    // CONSTRUCTOR: validates the supplied values.
     public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
         setName(name);
         setWeight(weight);
-        this.BBF = bestBeforeDate;
+        setBBF(bestBeforeDate);
         this.ID = ID;
     }
 
@@ -63,7 +66,46 @@ public class Food {
     }
 
     public void setBBF(String BBF) {
-        this.BBF = BBF;
+        if (BBF == null || BBF.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Best-before date cannot be empty."
+            );
+        }
+
+        String cleanedDate = BBF.trim();
+
+        if (!cleanedDate.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
+            throw new IllegalArgumentException(
+                "Use the date format yyyy-MM-dd."
+            );
+        }
+
+        LocalDate bestBeforeDate;
+
+        try {
+            bestBeforeDate = LocalDate.parse(cleanedDate);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(
+                "Best-before date must be a real calendar date.", e
+            );
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate latestAllowed = today.plusDays(14);
+
+        if (bestBeforeDate.isBefore(today)) {
+            throw new IllegalArgumentException(
+                "Best-before date cannot be in the past."
+            );
+        }
+
+        if (bestBeforeDate.isAfter(latestAllowed)) {
+            throw new IllegalArgumentException(
+                "Best-before date cannot be more than 14 days from today."
+            );
+        }
+
+        this.BBF = bestBeforeDate.toString();
     }
 
     public Integer getID() {
