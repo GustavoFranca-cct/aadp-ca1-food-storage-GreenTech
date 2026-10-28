@@ -1,52 +1,122 @@
 package org.myfood;
 
 import java.util.Scanner;
+import org.myfood.util.FoodStorage;
 
 public class Main {
 
     public static void main(String[] args) {
 
+        Scanner sc = new Scanner(System.in);
+        FoodStorage storage = new FoodStorage();
         boolean isRunning = true;
 
         System.out.println("----------------------------------");
         System.out.println("      Food Storage terminal");
         System.out.println("----------------------------------");
 
+        while (isRunning) {
 
-//        Food myFood = new Food("batata", 1.5f, "2023-12-31", 1);
+            System.out.println("\n1. Add food");
+            System.out.println("2. Display all food");
+            System.out.println("3. Search food by name");
+            System.out.println("4. Remove oldest food (FIFO)");
+            System.out.println("5. Display oldest food");
+            System.out.println("9. Exit");
+            System.out.print("Choose an option: ");
 
-
-        try {
-            while (isRunning) {
-
-                Scanner sc = new Scanner(System.in);
-                int selector = sc.nextInt();
-
-
-                // TODO: Main menu selection
+            try {
+                int selector = Integer.parseInt(sc.nextLine().trim());
 
                 switch (selector) {
+
                     case 1:
-                        // Handle option 1 like add new food
-                        break;
-                    case 2:
-                        // Handle option 2 like view list of food
+                        try {
+                            System.out.print("Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): ");
+                            String name = sc.nextLine();
+
+                            System.out.print("Enter weight in grams: ");
+                            float weight = Float.parseFloat(sc.nextLine().trim());
+
+                            System.out.print("Enter best-before date (yyyy-MM-dd): ");
+                            String bbf = sc.nextLine().trim();
+
+                            System.out.print("Enter food ID: ");
+                            int id = Integer.parseInt(sc.nextLine().trim());
+
+                            Food food = new Food(name, weight, bbf, id);
+                            storage.addFood(food);
+
+                            System.out.println("Food added successfully!");
+
+                        } catch (IllegalArgumentException | IllegalStateException e) {
+                            System.out.println("Could not add food: " + e.getMessage());
+                        } catch (Exception e) {
+                            System.out.println("Invalid input. Please check the values and try again.");
+                        }
                         break;
 
+                    case 2:
+                        storage.displayAll();
+                        break;
+
+                    case 3:
+                        try {
+                            System.out.print("Enter the food name to search: ");
+                            String searchName = sc.nextLine();
+
+                            Food[] results = storage.searchByName(searchName);
+
+                            if (results.length == 0) {
+                                System.out.println("No matching food found.");
+                            } else {
+                                System.out.println("Search results:");
+                                for (Food food : results) {
+                                    System.out.println("ID: " + food.getID()
+                                            + " | Name: " + food.getName()
+                                            + " | Weight: " + food.getWeight() + " g"
+                                            + " | Best-before: " + food.getBBF());
+                                }
+                            }
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Search error: " + e.getMessage());
+                        }
+                        break;
+
+                    case 4:
+                        try {
+                            Food removedFood = storage.removeFood();
+                            System.out.println("Removed oldest food: " + removedFood.getName()
+                                    + " (ID: " + removedFood.getID() + ")");
+                        } catch (IllegalStateException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        break;
+
+                    case 5:
+                        try {
+                            Food oldestFood = storage.peekFront();
+                            System.out.println("Oldest food: " + oldestFood.getName()
+                                    + " (ID: " + oldestFood.getID() + ")");
+                        } catch (IllegalStateException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        break;
 
                     case 9:
                         System.out.println("Exiting...");
                         isRunning = false;
-                        return;
+                        break;
+
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
 
+            } catch (NumberFormatException e) {
+                System.out.println("Please enter a valid menu number.");
             }
-
-        } catch (Exception e) {
-            System.err.println("An error occurred: " + e.getMessage());
         }
 
+        sc.close();
     }
 }
