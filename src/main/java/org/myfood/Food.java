@@ -7,12 +7,41 @@ public class Food {
     private String BBF;
     private Integer ID;
 
+    // CONSTRUCTOR: creates a Food object and validates its name and weight.
+    public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
+        setName(name);
+        setWeight(weight);
+        this.BBF = bestBeforeDate;
+        this.ID = ID;
+    }
+
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Food name cannot be empty."
+            );
+        }
+
+        String cleanedName = name.trim();
+
+        String[] allowedNames = {
+            "Burger", "Pizza", "Fries", "Sandwich", "Hotdog"
+        };
+
+        for (String allowedName : allowedNames) {
+            if (allowedName.equalsIgnoreCase(cleanedName)) {
+                this.name = allowedName;
+                return;
+            }
+        }
+
+        throw new IllegalArgumentException(
+            "Invalid food name. Choose Burger, Pizza, Fries, Sandwich or Hotdog."
+        );
     }
 
     public Float getWeight() {
@@ -20,6 +49,12 @@ public class Food {
     }
 
     public void setWeight(Float weight) {
+        if (weight == null || !Float.isFinite(weight) || weight <= 0) {
+            throw new IllegalArgumentException(
+                "Weight must be a positive, finite number in grams."
+            );
+        }
+
         this.weight = weight;
     }
 
@@ -38,21 +73,4 @@ public class Food {
     public void setID(Integer ID) {
         this.ID = ID;
     }
-
-    /**
-     * Constructor for the Food class
-     *
-     * @param name           - The name of the food item
-     * @param weight         - The weight of the food item
-     * @param bestBeforeDate - The best before date of the food item
-     * @param ID             - The ID of the food item
-     */
-    public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
-        this.name = name;
-        this.weight = weight;
-        this.BBF = bestBeforeDate;
-        this.ID = ID;
-
-    }
-
 }
