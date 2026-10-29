@@ -2,6 +2,7 @@ package org.myfood;
 
 import java.util.Scanner;
 import org.myfood.util.FoodStorage;
+import org.myfood.util.InputUtils;
 
 public class Main {
 
@@ -24,57 +25,50 @@ public class Main {
                 System.out.println("4. Remove oldest food (FIFO)");
                 System.out.println("5. Display oldest food");
                 System.out.println("9. Exit");
-                System.out.print("Choose an option: ");
 
                 // Exit safely if the input stream closes.
                 if (!sc.hasNextLine()) {
                     break;
                 }
 
-                String input = sc.nextLine().trim();
-                int selector;
-
-                try {
-                    selector = Integer.parseInt(input);
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter a valid menu number.");
-                    continue;
-                }
+                int selector = InputUtils.readInt(sc, "Choose an option: ");
 
                 switch (selector) {
                     case 1:
                         try {
-                            System.out.print("Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): ");
-                            if (!sc.hasNextLine()) {
+                            String name = InputUtils.readFoodName(sc, "Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): ");
+                            if (name.isEmpty()) {
                                 isRunning = false;
                                 break;
                             }
-                            String name = sc.nextLine();
 
-                            System.out.print("Enter weight in grams: ");
-                            if (!sc.hasNextLine()) {
+                            float weight = InputUtils.readFloat(sc, "Enter weight in grams: ");
+                            if (weight <= 0) {
                                 isRunning = false;
                                 break;
                             }
-                            float weight = Float.parseFloat(sc.nextLine().trim());
 
-                            System.out.print("Enter best-before date (yyyy-MM-dd): ");
-                            if (!sc.hasNextLine()) {
+                            String bbf = InputUtils.readBestBefore(sc, "Enter best-before date (yyyy-MM-dd or 14d, 2w): ");
+                            if (bbf.isEmpty()) {
                                 isRunning = false;
                                 break;
                             }
-                            String bbf = sc.nextLine().trim();
 
-                            System.out.print("Enter food ID: ");
-                            if (!sc.hasNextLine()) {
+                            int defaultId = storage.getNextDefaultId();
+                            int id = InputUtils.readFoodId(sc, "Enter food ID (press Enter for default " + defaultId + "): ", defaultId);
+                            if (id <= 0) {
                                 isRunning = false;
                                 break;
                             }
-                            int id = Integer.parseInt(sc.nextLine().trim());
+
+                            if (id != defaultId && storage.containsId(id)) {
+                                System.out.println("ID " + id + " is already in use. Falling back to default ID: " + defaultId);
+                                id = defaultId;
+                            }
 
                             Food food = new Food(name, weight, bbf, id);
                             storage.addFood(food);
-                            System.out.println("Food added successfully!");
+                            System.out.println("Food added successfully! (ID: " + id + ")");
 
                         } catch (IllegalArgumentException | IllegalStateException e) {
                             System.out.println("Could not add food: " + e.getMessage());
@@ -86,14 +80,11 @@ public class Main {
                         break;
 
                     case 3:
-                        System.out.print("Enter the food name to search: ");
-
-                        if (!sc.hasNextLine()) {
+                        String searchName = InputUtils.readString(sc, "Enter the food name to search: ");
+                        if (searchName.isEmpty()) {
                             isRunning = false;
                             break;
                         }
-
-                        String searchName = sc.nextLine();
 
                         try {
                             Food[] results = storage.searchByName(searchName);

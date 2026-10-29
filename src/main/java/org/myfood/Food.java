@@ -75,9 +75,19 @@ public class Food {
 
         String cleanedDate = BBF.trim();
 
+        if (cleanedDate.matches("(?i)^[0-9]+\\s*[dw]$")) {
+            char unit = Character.toLowerCase(cleanedDate.charAt(cleanedDate.length() - 1));
+            String numPart = cleanedDate.substring(0, cleanedDate.length() - 1).trim();
+            int amount = Integer.parseInt(numPart);
+            LocalDate calculated = (unit == 'w')
+                    ? LocalDate.now().plusWeeks(amount)
+                    : LocalDate.now().plusDays(amount);
+            cleanedDate = calculated.toString();
+        }
+
         if (!cleanedDate.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}")) {
             throw new IllegalArgumentException(
-                "Use the date format yyyy-MM-dd."
+                "Use the date format yyyy-MM-dd or shorthand like 14d or 2w."
             );
         }
 

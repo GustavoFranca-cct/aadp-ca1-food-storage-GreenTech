@@ -15,6 +15,7 @@ public class FoodStorage {
     private int front;
     private int rear;
     private int size;
+    private int nextDefaultId = 1;
 
     // Constructor
     public FoodStorage() {
@@ -39,6 +40,26 @@ public class FoodStorage {
         return size;
     }
 
+    // Checks if a food ID is already in use by any stored item.
+    public boolean containsId(int id) {
+        for (int i = 0; i < size; i++) {
+            int index = (front + i) % CAPACITY;
+            Food food = items[index];
+            if (food != null && food.getID() != null && food.getID() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Returns the next available unique default ID.
+    public int getNextDefaultId() {
+        while (containsId(nextDefaultId)) {
+            nextDefaultId++;
+        }
+        return nextDefaultId;
+    }
+
     // Adds a food item to the rear of the queue.
     public void addFood(Food food) {
         if (food == null) {
@@ -56,6 +77,10 @@ public class FoodStorage {
         rear = (rear + 1) % CAPACITY;
         items[rear] = food;
         size++;
+
+        if (food.getID() != null && food.getID() >= nextDefaultId) {
+            nextDefaultId = food.getID() + 1;
+        }
     }
 
     // Removes and returns the oldest food item.
