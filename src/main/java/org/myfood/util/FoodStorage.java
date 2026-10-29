@@ -1,8 +1,12 @@
-
 package org.myfood.util;
 
 import org.myfood.Food;
 
+/**
+ * Food storage with a maximum capacity of eight trays.
+ *
+ * @author marlon_k
+ */
 public class FoodStorage {
 
     private static final int CAPACITY = 8;
@@ -12,6 +16,7 @@ public class FoodStorage {
     private int rear;
     private int size;
 
+    // Constructor
     public FoodStorage() {
         items = new Food[CAPACITY];
         front = 0;
@@ -109,7 +114,15 @@ public class FoodStorage {
         }
     }
 
-    // Searches for food by name, ignoring capitalisation and extra spaces.
+    /**
+     * Finds all stored foods with the requested name.
+     * The search does not remove or reorder any food.
+     *
+     * @param searchName the food name to find
+     * @return an array containing all matching foods,
+     *         or an empty array when no matches exist
+     * @throws IllegalArgumentException if the search name is blank or null
+     */
     public Food[] searchByName(String searchName) {
         if (searchName == null || searchName.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -122,17 +135,18 @@ public class FoodStorage {
         Food[] matches = new Food[CAPACITY];
         int matchCount = 0;
 
+        // Check every array position without modifying storage.
         for (int i = 0; i < items.length; i++) {
             Food food = items[i];
 
-            if (food != null &&
-                cleanedName.equalsIgnoreCase(food.getName())) {
-
+            if (food != null
+                    && cleanedName.equalsIgnoreCase(food.getName())) {
                 matches[matchCount] = food;
                 matchCount++;
             }
         }
 
+        // Return only the matching entries, with no unused positions.
         Food[] results = new Food[matchCount];
 
         for (int i = 0; i < matchCount; i++) {

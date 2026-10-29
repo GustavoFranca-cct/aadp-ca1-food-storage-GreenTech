@@ -7,7 +7,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Scanner sc = new Scanner(System.in);
         FoodStorage storage = new FoodStorage();
         boolean isRunning = true;
 
@@ -15,44 +14,70 @@ public class Main {
         System.out.println("      Food Storage terminal");
         System.out.println("----------------------------------");
 
-        while (isRunning) {
+        // Create one Scanner for the entire session.
+        try (Scanner sc = new Scanner(System.in)) {
+            while (isRunning) {
 
-            System.out.println("\n1. Add food");
-            System.out.println("2. Display all food");
-            System.out.println("3. Search food by name");
-            System.out.println("4. Remove oldest food (FIFO)");
-            System.out.println("5. Display oldest food");
-            System.out.println("9. Exit");
-            System.out.print("Choose an option: ");
+                System.out.println("\n1. Add food");
+                System.out.println("2. Display all food");
+                System.out.println("3. Search food by name");
+                System.out.println("4. Remove oldest food (FIFO)");
+                System.out.println("5. Display oldest food");
+                System.out.println("9. Exit");
+                System.out.print("Choose an option: ");
 
-            try {
-                int selector = Integer.parseInt(sc.nextLine().trim());
+                // Exit safely if the input stream closes.
+                if (!sc.hasNextLine()) {
+                    break;
+                }
+
+                String input = sc.nextLine().trim();
+                int selector;
+
+                try {
+                    selector = Integer.parseInt(input);
+                } catch (NumberFormatException e) {
+                    System.out.println("Please enter a valid menu number.");
+                    continue;
+                }
 
                 switch (selector) {
-
                     case 1:
                         try {
                             System.out.print("Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): ");
+                            if (!sc.hasNextLine()) {
+                                isRunning = false;
+                                break;
+                            }
                             String name = sc.nextLine();
 
                             System.out.print("Enter weight in grams: ");
+                            if (!sc.hasNextLine()) {
+                                isRunning = false;
+                                break;
+                            }
                             float weight = Float.parseFloat(sc.nextLine().trim());
 
                             System.out.print("Enter best-before date (yyyy-MM-dd): ");
+                            if (!sc.hasNextLine()) {
+                                isRunning = false;
+                                break;
+                            }
                             String bbf = sc.nextLine().trim();
 
                             System.out.print("Enter food ID: ");
+                            if (!sc.hasNextLine()) {
+                                isRunning = false;
+                                break;
+                            }
                             int id = Integer.parseInt(sc.nextLine().trim());
 
                             Food food = new Food(name, weight, bbf, id);
                             storage.addFood(food);
-
                             System.out.println("Food added successfully!");
 
                         } catch (IllegalArgumentException | IllegalStateException e) {
                             System.out.println("Could not add food: " + e.getMessage());
-                        } catch (Exception e) {
-                            System.out.println("Invalid input. Please check the values and try again.");
                         }
                         break;
 
@@ -61,10 +86,16 @@ public class Main {
                         break;
 
                     case 3:
-                        try {
-                            System.out.print("Enter the food name to search: ");
-                            String searchName = sc.nextLine();
+                        System.out.print("Enter the food name to search: ");
 
+                        if (!sc.hasNextLine()) {
+                            isRunning = false;
+                            break;
+                        }
+
+                        String searchName = sc.nextLine();
+
+                        try {
                             Food[] results = storage.searchByName(searchName);
 
                             if (results.length == 0) {
@@ -104,19 +135,15 @@ public class Main {
                         break;
 
                     case 9:
-                        System.out.println("Exiting...");
                         isRunning = false;
                         break;
 
                     default:
                         System.out.println("Invalid option. Please try again.");
                 }
-
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid menu number.");
             }
         }
 
-        sc.close();
+        System.out.println("Exiting...");
     }
 }
