@@ -1,3 +1,4 @@
+
 package org.myfood;
 
 import java.time.LocalDate;
@@ -10,7 +11,7 @@ public class Food {
     private String BBF;
     private Integer ID;
 
-    // CONSTRUCTOR: validates the supplied values.
+    // Constructor: validates the supplied values.
     public Food(String name, Float weight, String bestBeforeDate, Integer ID) {
         setName(name);
         setWeight(weight);

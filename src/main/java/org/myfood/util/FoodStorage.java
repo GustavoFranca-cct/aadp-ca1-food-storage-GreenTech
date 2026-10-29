@@ -24,19 +24,94 @@ public class FoodStorage {
         size = 0;
     }
 
-    // Checks if the storage is empty
+    // Checks if the storage is empty.
     public boolean isEmpty() {
         return size == 0;
     }
 
-    // Checks if the storage is full
+    // Checks if the storage is full.
     public boolean isFull() {
         return size == CAPACITY;
     }
 
-    // Returns the number of stored items
+    // Returns the number of stored items.
     public int getSize() {
         return size;
+    }
+
+    // Adds a food item to the rear of the queue.
+    public void addFood(Food food) {
+        if (food == null) {
+            throw new IllegalArgumentException(
+                "Food cannot be null."
+            );
+        }
+
+        if (isFull()) {
+            throw new IllegalStateException(
+                "Storage is full. Maximum capacity is 8."
+            );
+        }
+
+        rear = (rear + 1) % CAPACITY;
+        items[rear] = food;
+        size++;
+    }
+
+    // Removes and returns the oldest food item.
+    public Food removeFood() {
+        if (isEmpty()) {
+            throw new IllegalStateException(
+                "Storage is empty. No food to remove."
+            );
+        }
+
+        Food removedFood = items[front];
+
+        // Clears the position so removed food is not found in searches.
+        items[front] = null;
+
+        front = (front + 1) % CAPACITY;
+        size--;
+
+        if (isEmpty()) {
+            front = 0;
+            rear = -1;
+        }
+
+        return removedFood;
+    }
+
+    // Returns the oldest food item without removing it.
+    public Food peekFront() {
+        if (isEmpty()) {
+            throw new IllegalStateException(
+                "Storage is empty. No food to display."
+            );
+        }
+
+        return items[front];
+    }
+
+    // Displays all food items from oldest to newest.
+    public void displayAll() {
+        if (isEmpty()) {
+            System.out.println("Storage is empty.");
+            return;
+        }
+
+        System.out.println("Food items in storage:");
+
+        for (int i = 0; i < size; i++) {
+            int index = (front + i) % CAPACITY;
+            Food food = items[index];
+
+            System.out.println("--------------------");
+            System.out.println("ID: " + food.getID());
+            System.out.println("Name: " + food.getName());
+            System.out.println("Weight: " + food.getWeight() + " g");
+            System.out.println("Best-before: " + food.getBBF());
+        }
     }
 
     /**
