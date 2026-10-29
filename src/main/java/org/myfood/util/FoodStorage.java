@@ -2,22 +2,16 @@ package org.myfood.util;
 
 import org.myfood.Food;
 
-/**
- * Food storage with a maximum capacity of eight trays.
- *
- * @author marlon_k
- */
 public class FoodStorage {
 
     private static final int CAPACITY = 8;
 
-    private Food[] items;
+    private final Food[] items;
     private int front;
     private int rear;
     private int size;
-    private int nextDefaultId = 1;
 
-    // Constructor
+    // Constructor: creates an empty queue.
     public FoodStorage() {
         items = new Food[CAPACITY];
         front = 0;
@@ -25,42 +19,41 @@ public class FoodStorage {
         size = 0;
     }
 
-    // Checks if the storage is empty.
     public boolean isEmpty() {
         return size == 0;
     }
 
-    // Checks if the storage is full.
     public boolean isFull() {
         return size == CAPACITY;
     }
 
-    // Returns the number of stored items.
     public int getSize() {
         return size;
     }
 
-    // Checks if a food ID is already in use by any stored item.
     public boolean containsId(int id) {
         for (int i = 0; i < size; i++) {
             int index = (front + i) % CAPACITY;
-            Food food = items[index];
-            if (food != null && food.getID() != null && food.getID() == id) {
+
+            if (items[index].getID() == id) {
                 return true;
             }
         }
+
         return false;
     }
 
-    // Returns the next available unique default ID.
     public int getNextDefaultId() {
-        while (containsId(nextDefaultId)) {
-            nextDefaultId++;
+        int candidate = 1;
+
+        while (containsId(candidate)) {
+            candidate++;
         }
-        return nextDefaultId;
+
+        return candidate;
     }
 
-    // Adds a food item to the rear of the queue.
+    // Add to the rear of the queue.
     public void addFood(Food food) {
         if (food == null) {
             throw new IllegalArgumentException(
@@ -74,16 +67,20 @@ public class FoodStorage {
             );
         }
 
+        if (containsId(food.getID())) {
+            throw new IllegalArgumentException(
+                "Food ID " + food.getID() + " is already in use."
+            );
+        }
+
+        food.markStoredNow();
+
         rear = (rear + 1) % CAPACITY;
         items[rear] = food;
         size++;
-
-        if (food.getID() != null && food.getID() >= nextDefaultId) {
-            nextDefaultId = food.getID() + 1;
-        }
     }
 
-    // Removes and returns the oldest food item.
+    // Remove from the front: oldest food first.
     public Food removeFood() {
         if (isEmpty()) {
             throw new IllegalStateException(
@@ -91,9 +88,7 @@ public class FoodStorage {
             );
         }
 
-        Food removedFood = items[front];
-
-        // Clears the position so removed food is not found in searches.
+        Food removed = items[front];
         items[front] = null;
 
         front = (front + 1) % CAPACITY;
@@ -104,10 +99,9 @@ public class FoodStorage {
             rear = -1;
         }
 
-        return removedFood;
+        return removed;
     }
 
-    // Returns the oldest food item without removing it.
     public Food peekFront() {
         if (isEmpty()) {
             throw new IllegalStateException(
@@ -118,36 +112,31 @@ public class FoodStorage {
         return items[front];
     }
 
-    // Displays all food items from oldest to newest.
     public void displayAll() {
         if (isEmpty()) {
             System.out.println("Storage is empty.");
             return;
         }
 
-        System.out.println("Food items in storage:");
+        System.out.println(
+            "Stored trays: " + size + "/" + CAPACITY
+        );
 
         for (int i = 0; i < size; i++) {
             int index = (front + i) % CAPACITY;
-            Food food = items[index];
-
-            System.out.println("--------------------");
-            System.out.println("ID: " + food.getID());
-            System.out.println("Name: " + food.getName());
-            System.out.println("Weight: " + food.getWeight() + " g");
-            System.out.println("Best-before: " + food.getBBF());
+            displayFood(items[index]);
         }
     }
 
-    /**
-     * Finds all stored foods with the requested name.
-     * The search does not remove or reorder any food.
-     *
-     * @param searchName the food name to find
-     * @return an array containing all matching foods,
-     *         or an empty array when no matches exist
-     * @throws IllegalArgumentException if the search name is blank or null
-     */
+    public static void displayFood(Food food) {
+        System.out.println("--------------------");
+        System.out.println("ID: " + food.getID());
+        System.out.println("Name: " + food.getName());
+        System.out.println("Weight: " + food.getWeight() + " g");
+        System.out.println("Best-before: " + food.getBBF());
+        System.out.println("Stored at: " + food.getStoredAt());
+    }
+
     public Food[] searchByName(String searchName) {
         if (searchName == null || searchName.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -156,22 +145,20 @@ public class FoodStorage {
         }
 
         String cleanedName = searchName.trim();
-
-        Food[] matches = new Food[CAPACITY];
+        Food[] matches = new Food[size];
         int matchCount = 0;
 
-        // Check every array position without modifying storage.
-        for (int i = 0; i < items.length; i++) {
-            Food food = items[i];
+        // Search in FIFO order, including after array wraparound.
+        for (int i = 0; i < size; i++) {
+            int index = (front + i) % CAPACITY;
+            Food food = items[index];
 
-            if (food != null
-                    && cleanedName.equalsIgnoreCase(food.getName())) {
+            if (cleanedName.equalsIgnoreCase(food.getName())) {
                 matches[matchCount] = food;
                 matchCount++;
             }
         }
 
-        // Return only the matching entries, with no unused positions.
         Food[] results = new Food[matchCount];
 
         for (int i = 0; i < matchCount; i++) {
