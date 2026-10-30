@@ -23,7 +23,9 @@ public class Main {
                 System.out.println("2. Display all food");
                 System.out.println("3. Search food by name");
                 System.out.println("4. Remove oldest food (FIFO)");
-                System.out.println("5. Display oldest food");
+                System.out.println("5. Remove newest food (LIFO / Stack)");
+                System.out.println("6. Display food at the top");
+                System.out.println("7. Display oldest food");
                 System.out.println("9. Exit");
 
                 try {
@@ -33,7 +35,7 @@ public class Main {
 
                     switch (choice) {
                         case 1:
-                            Food.addFood(sc, storage);
+                            storage.addFoodFromInput(sc);
                             break;
 
                         case 2:
@@ -45,16 +47,33 @@ public class Main {
                             break;
 
                         case 4:
-                            Food removed = storage.removeFood();
+                            Food removedFifo = storage.removeFood();
 
                             System.out.println(
                                 "Removed oldest food: "
-                                + removed.getName()
-                                + " (ID: " + removed.getID() + ")"
+                                + removedFifo.getName()
+                                + " (ID: " + removedFifo.getID() + ")"
                             );
                             break;
 
                         case 5:
+                            Food removedLifo = storage.removeFoodStack();
+
+                            System.out.println(
+                                "Removed newest food: "
+                                + removedLifo.getName()
+                                + " (ID: " + removedLifo.getID() + ")"
+                            );
+                            break;
+
+                        case 6:
+                            System.out.println("Food at the top:");
+                            FoodStorage.displayFood(
+                                storage.peekTop()
+                            );
+                            break;
+
+                        case 7:
                             System.out.println("Oldest food:");
                             FoodStorage.displayFood(
                                 storage.peekFront()
@@ -67,7 +86,7 @@ public class Main {
 
                         default:
                             System.out.println(
-                                "Invalid option. Choose 1, 2, 3, 4, 5 or 9."
+                                "Invalid option. Choose 1, 2, 3, 4, 5, 6, 7 or 9."
                             );
                     }
 

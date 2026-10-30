@@ -1,12 +1,8 @@
 package org.myfood;
 
-import org.myfood.util.FoodStorage;
-import org.myfood.util.InputUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 
 public class Food {
 
@@ -23,55 +19,6 @@ public class Food {
         setWeight(weight);
         setBBF(bestBeforeDate);
         setID(ID);
-    }
-
-    public static void addFood(Scanner sc, FoodStorage storage) {
-
-        // Check capacity before asking for food information.
-        if (storage.isFull()) {
-            System.out.println(
-                    "Storage is full. Maximum capacity is 8."
-            );
-            return;
-        }
-
-        String name = InputUtils.readFoodName(
-                sc,
-                "Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): "
-        );
-
-        float weight = InputUtils.readFloat(
-                sc, "Enter weight in grams: "
-        );
-
-        String bestBefore = InputUtils.readBestBefore(
-                sc, "Enter best-before date (yyyy-MM-dd, 14d or 2w): "
-        );
-
-        int defaultId = storage.getNextDefaultId();
-
-        int id = InputUtils.readFoodId(
-                sc,
-                "Enter food ID (Enter for default " + defaultId + "): ",
-                defaultId
-        );
-
-        if (storage.containsId(id)) {
-            System.out.println(
-                    "ID " + id + " is already in use. Using " + defaultId + "."
-            );
-
-            id = defaultId;
-        }
-
-        // The constructor validates before storage is modified.
-        Food food = new Food(name, weight, bestBefore, id);
-
-        storage.addFood(food);
-
-        System.out.println(
-                "Food added successfully! (ID: " + food.getID() + ")"
-        );
     }
 
     public String getName() {
