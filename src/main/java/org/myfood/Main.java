@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import org.myfood.util.FoodStorage;
 import org.myfood.util.InputUtils;
+import org.myfood.util.search;
 
 public class Main {
 
@@ -40,7 +41,7 @@ public class Main {
                             break;
 
                         case 3:
-                            searchFood(sc, storage);
+                            search.searchFood(sc, storage);
                             break;
 
                         case 4:
@@ -134,26 +135,4 @@ public class Main {
         );
     }
 
-    private static void searchFood(
-            Scanner sc, FoodStorage storage) {
-
-        String name = InputUtils.readString(
-            sc, "Enter the food name to search: "
-        );
-
-        // Blank input is rejected by searchByName.
-        // The main loop catches the error and shows the menu again.
-        Food[] results = storage.searchByName(name);
-
-        if (results.length == 0) {
-            System.out.println("No matching food found.");
-            return;
-        }
-
-        System.out.println("Matching trays: " + results.length);
-
-        for (Food food : results) {
-            FoodStorage.displayFood(food);
-        }
-    }
 }
