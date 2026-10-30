@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import org.myfood.util.FoodStorage;
 import org.myfood.util.InputUtils;
+import org.myfood.util.search;
 
 public class Main {
 
@@ -22,7 +23,9 @@ public class Main {
                 System.out.println("2. Display all food");
                 System.out.println("3. Search food by name");
                 System.out.println("4. Remove oldest food (FIFO)");
-                System.out.println("5. Display oldest food");
+                System.out.println("5. Remove newest food (LIFO / Stack)");
+                System.out.println("6. Display food at the top");
+                System.out.println("7. Display oldest food");
                 System.out.println("9. Exit");
 
                 try {
@@ -32,7 +35,7 @@ public class Main {
 
                     switch (choice) {
                         case 1:
-                            addFood(sc, storage);
+                            storage.addFoodFromInput(sc);
                             break;
 
                         case 2:
@@ -40,20 +43,37 @@ public class Main {
                             break;
 
                         case 3:
-                            searchFood(sc, storage);
+                            search.searchFood(sc, storage);
                             break;
 
                         case 4:
-                            Food removed = storage.removeFood();
+                            Food removedFifo = storage.removeFood();
 
                             System.out.println(
                                 "Removed oldest food: "
-                                + removed.getName()
-                                + " (ID: " + removed.getID() + ")"
+                                + removedFifo.getName()
+                                + " (ID: " + removedFifo.getID() + ")"
                             );
                             break;
 
                         case 5:
+                            Food removedLifo = storage.removeFoodStack();
+
+                            System.out.println(
+                                "Removed newest food: "
+                                + removedLifo.getName()
+                                + " (ID: " + removedLifo.getID() + ")"
+                            );
+                            break;
+
+                        case 6:
+                            System.out.println("Food at the top:");
+                            FoodStorage.displayFood(
+                                storage.peekTop()
+                            );
+                            break;
+
+                        case 7:
                             System.out.println("Oldest food:");
                             FoodStorage.displayFood(
                                 storage.peekFront()
@@ -66,7 +86,7 @@ public class Main {
 
                         default:
                             System.out.println(
-                                "Invalid option. Choose 1, 2, 3, 4, 5 or 9."
+                                "Invalid option. Choose 1, 2, 3, 4, 5, 6, 7 or 9."
                             );
                     }
 
@@ -82,78 +102,5 @@ public class Main {
         }
 
         System.out.println("Exiting...");
-    }
-
-    private static void addFood(
-            Scanner sc, FoodStorage storage) {
-
-        // Check capacity before asking for food information.
-        if (storage.isFull()) {
-            System.out.println(
-                "Storage is full. Maximum capacity is 8."
-            );
-            return;
-        }
-
-        String name = InputUtils.readFoodName(
-            sc,
-            "Enter food name (Burger, Pizza, Fries, Sandwich, Hotdog): "
-        );
-
-        float weight = InputUtils.readFloat(
-            sc, "Enter weight in grams: "
-        );
-
-        String bestBefore = InputUtils.readBestBefore(
-            sc, "Enter best-before date (yyyy-MM-dd, 14d or 2w): "
-        );
-
-        int defaultId = storage.getNextDefaultId();
-
-        int id = InputUtils.readFoodId(
-            sc,
-            "Enter food ID (Enter for default " + defaultId + "): ",
-            defaultId
-        );
-
-        if (storage.containsId(id)) {
-            System.out.println(
-                "ID " + id + " is already in use. Using " + defaultId + "."
-            );
-
-            id = defaultId;
-        }
-
-        // The constructor validates before storage is modified.
-        Food food = new Food(name, weight, bestBefore, id);
-
-        storage.addFood(food);
-
-        System.out.println(
-            "Food added successfully! (ID: " + food.getID() + ")"
-        );
-    }
-
-    private static void searchFood(
-            Scanner sc, FoodStorage storage) {
-
-        String name = InputUtils.readString(
-            sc, "Enter the food name to search: "
-        );
-
-        // Blank input is rejected by searchByName.
-        // The main loop catches the error and shows the menu again.
-        Food[] results = storage.searchByName(name);
-
-        if (results.length == 0) {
-            System.out.println("No matching food found.");
-            return;
-        }
-
-        System.out.println("Matching trays: " + results.length);
-
-        for (Food food : results) {
-            FoodStorage.displayFood(food);
-        }
     }
 }
